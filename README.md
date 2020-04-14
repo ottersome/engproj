@@ -5,6 +5,7 @@
 
 # Dependencies
 
-1. https://github.com/mikedh/trimesh
+1. [Trismesh(Tentative)](https://github.com/mikedh/trimesh)
 1. PyOpenGL
 1. PyOpenGL_accelerate
+1. [Pyrenderer(Tentative)](https://github.com/mmatl/pyrender)
