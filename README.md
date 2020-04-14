@@ -6,3 +6,5 @@
 # Dependencies
 
 1. https://github.com/mikedh/trimesh
+1. PyOpenGL
+1. PyOpenGL_accelerate
