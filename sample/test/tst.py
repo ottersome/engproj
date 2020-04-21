@@ -2,6 +2,7 @@ import vtk
 import argparse as ap
 import sys
 import pandas as pd
+from panda3d.core import 
 
 
 def reanderPointInSpace(pointDS):
