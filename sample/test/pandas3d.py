@@ -12,6 +12,9 @@ from random import random
 
 import sys
 import pandas as pd
+import numpy as np
+from panda3d.core import LineSegs
+
 
 loadPrcFileData("", "load-file-type p3assimp")
 
@@ -30,6 +33,17 @@ class MyApp(ShowBase):
         df = pd.read_csv(sys.argv[1])
         for index,row in df.iterrows():
             self.points.append([row['px'],row['py'],row['pz']])
+            self.a0.append([row['a0x'],row['a0y'],row['a0z']]);
+            self.a1.append([row['a1x'],row['a1y'],row['a1z']]);
+
+            #THe normalization and orthogonalizaiton thingy
+            self.a0n.append(self.a0[-1]/np.linalg.norm(self.a0[-1]))
+            self.a1n.append(self.a1[-1]/np.linalg.norm(self.a1[-1]))
+            self.a1n[-1]  = np.cross(self.a0n[-1],self.a1n[-1])
+            self.a1n[-1]  = np.cross(self.a1n[-1],self.a0n[-1])
+            self.a1n[-1] =  (self.a1n[-1]/np.linalg.norm(self.a1n[-1]))
+            self.a2n.append(np.cross(self.a0n[-1],self.a1n[-1]));
+
             #print("Ford index : %d Coords : (%.3f,%.3f,%.3f)"%
             #    (row['objectIndex'],row['px'],row['py'],row['pz']))
 
@@ -37,6 +51,13 @@ class MyApp(ShowBase):
         ShowBase.__init__(self)
         self.amntObjs = 0
         self.points = []
+        self.colors = []
+        self.a0 = []
+        self.a1 = []
+        self.a0n = []
+        self.a1n = []
+        self.a2n = []
+
 
         # Load the environment model.
 
@@ -49,15 +70,16 @@ class MyApp(ShowBase):
 
         self.drawPlane()
         self.drawSpherex(self.points)
-        self.trackball.node().setPos(0,0,100)
-        #base.disableMouse()
+        self.drawLineSegments(self.points)
+        base.disableMouse()
+        base.camera.setPos(-2,-18,20)
+        base.camera.lookAt(-2,-18,0)
+        base.oobe()
 
         #ambientLight = AmbientLight("Ambient Light")
         #ambientLight.setColor(Vec4(0.1,0.1,0.1,1))
         #self.ambientLightNP = self.render.attachNewNode(ambientLight)
         #self.render.setLight(self.ambientLightNP)
-        #self.camera.setPos(0,0,100)
-        #self.camera.lookAt(0,0,0)
         #self.taskMgr.add(self.spinCameraTask,"SpinCameraTask")
 
     def spinCameraTask(self, task):
@@ -105,6 +127,7 @@ class MyApp(ShowBase):
 
 
     def drawSpherex(self,points):
+
         vdata = GeomVertexData('',GeomVertexFormat.getV3c4(),Geom.UHStatic)
         vertex = GeomVertexWriter(vdata,'vertex')
         color = GeomVertexWriter(vdata,'color')
@@ -112,7 +135,10 @@ class MyApp(ShowBase):
         for point in points:
             self.amntObjs = self.amntObjs +1
             vertex.addData3f(point[0],point[1],point[2])
-            color.addData4f(random(),random(),random(),1)
+            self.colors.append([random(),random(),random()])
+            color.addData4f(self.colors[-1][0],self.colors[-1][1],self.colors[-1][0],1)
+
+            #Draw a line Segment pointing down
 
         prim = GeomPoints(Geom.UHStatic)
         prim.add_consecutive_vertices(0,self.amntObjs)
@@ -127,5 +153,42 @@ class MyApp(ShowBase):
         nodePath = self.render.attachNewNode(node)
         nodePath.setRenderModeThickness(5)
         return 0
+
+    def drawLineSegments(self,points):#Point will be origin of line segments
+        ls = LineSegs()
+
+        ls.setThickness(5)
+        ind = 0
+        for point in points:
+            #ls.setColor(self.colors[ind][0],self.colors[ind][1],self.colors[ind][1],0.7)
+            #ls.moveTo(float(point[0]),float(point[1]),float(point[2]))
+            #ls.drawTo(float(point[0]+self.a0[ind][0]),point[1]+float(self.a0[ind][1]),point[2]+float(self.a0[ind][2]))
+
+            #ls.moveTo(float(point[0]),float(point[1]),float(point[2]))
+            #ls.drawTo(float(point[0]+self.a1[ind][0]),point[1]+float(self.a1[ind][1]),point[2]+float(self.a1[ind][2]))
+
+            #a2 = np.cross(self.a0[ind],self.a1[ind])
+            #print("A2 is : ",a2)
+            ##ls.setColor(1,0,0,0.7)
+            #ls.moveTo(float(point[0]),float(point[1]),float(point[2]))
+            #ls.drawTo(float(point[0]+a2[0]),point[1]+float(a2[1]),point[2]+float(a2[2]))
+
+            #Draw th new threes
+            ls.setColor(1,0,0,0.7)
+            ls.moveTo(float(point[0]),float(point[1]),float(point[2]))
+            ls.drawTo(float(point[0]+self.a0n[ind][0]),point[1]+float(self.a0n[ind][1]),point[2]+float(self.a0n[ind][2]))
+
+            ls.moveTo(float(point[0]),float(point[1]),float(point[2]))
+            ls.drawTo(float(point[0]+self.a1n[ind][0]),point[1]+float(self.a1n[ind][1]),point[2]+float(self.a1n[ind][2]))
+
+            ls.moveTo(float(point[0]),float(point[1]),float(point[2]))
+            ls.drawTo(float(point[0]+self.a2n[ind][0]),point[1]+float(self.a2n[ind][1]),point[2]+float(self.a2n[ind][2]))
+
+            #ls.setColor(1,0,0,0.7)
+            ind +=1
+
+        linegeomn = ls.create(dynamic=False)# Creates a geomnode
+        nodePath = self.render.attachNewNode(linegeomn)
+
 app = MyApp()
 app.run()
