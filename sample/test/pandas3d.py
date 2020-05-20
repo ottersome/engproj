@@ -22,12 +22,14 @@ loadPrcFileData("", "load-file-type p3assimp")
 class MyApp(ShowBase):
 
     def LoadSofa(self):
-        self.scene = self.loader.loadModel("/home/ottersome/Projects/EngineeringProject/Models/sofa1.obj")
+        self.scene = self.loader.loadModel("/home/ottersome/Projects/EngineeringProject/Models/Alden/working/cat34_sink.egg",)
         # Reparent the model to render.
         self.scene.reparentTo(self.render)
         ## Apply scale and position transforms on the model.
         self.scene.setScale(0.25, 0.25, 0.25)
-        self.scene.setPos(-8, 42, 0)
+        self.scene.setPos(0, 0, 10)
+
+        self.notgottie = [2,22,38,39,40]
 
     def getPoints(self):
         df = pd.read_csv(sys.argv[1])
@@ -69,6 +71,7 @@ class MyApp(ShowBase):
         self.getPoints()
 
         self.drawPlane()
+        self.LoadSofa()
         self.drawSpherex(self.points)
         self.drawLineSegments(self.points)
         base.disableMouse()
@@ -76,10 +79,15 @@ class MyApp(ShowBase):
         base.camera.lookAt(-2,-18,0)
         base.oobe()
 
-        #ambientLight = AmbientLight("Ambient Light")
-        #ambientLight.setColor(Vec4(0.1,0.1,0.1,1))
-        #self.ambientLightNP = self.render.attachNewNode(ambientLight)
-        #self.render.setLight(self.ambientLightNP)
+        plight = PointLight('plight')
+        plight.setColor((0.9, 0.9, 0.9, 1))
+        plnp = render.attachNewNode(plight)
+        plnp.setPos(0, 0, 1)
+        render.setLight(plnp)
+        #  ambientLight = AmbientLight("Ambient Light")
+        #  ambientLight.setColor(Vec4(0.1,0.1,0.1,1))
+        #  self.ambientLightNP = self.render.attachNewNode(ambientLight)
+        #  self.render.setLight(self.ambientLightNP)
         #self.taskMgr.add(self.spinCameraTask,"SpinCameraTask")
 
     def spinCameraTask(self, task):
@@ -189,6 +197,19 @@ class MyApp(ShowBase):
 
         linegeomn = ls.create(dynamic=False)# Creates a geomnode
         nodePath = self.render.attachNewNode(linegeomn)
+
+    def getAngleBtwnVec(self, v0,v1):# Assuming 3D Vectors
+        v0 = np.unit_vector(v0)
+        v1 = np.unit_vector(v1)
+        return np.arccos()
+        #  dotProduct = sum((a*b)) for a,b in zip(v0,v1)
+
+    def unit_vector(self,vector):
+        return vector / np.linalg.norm(vector)
+
+
+
+
 
 app = MyApp()
 app.run()

@@ -1,0 +1,150 @@
+<Group> defaultobject {
+  <Group> "<LightGray>" {
+    <VertexPool> "<LightGray>" {
+      <Vertex> 0 {
+        22 2 1.5
+      }
+      <Vertex> 1 {
+        2 34 1.5
+      }
+      <Vertex> 2 {
+        2 2 1.5
+      }
+      <Vertex> 3 {
+        22 34 1.5
+      }
+    }
+    <Polygon> {
+      <Normal> { 0 0 1 }
+      <RGBA> { 0.662744998931885 0.662744998931885 0.662744998931885 1 }
+      <VertexRef> { 0 1 2 <Ref> { "<LightGray>" } }
+    }
+    <Polygon> {
+      <Normal> { 0 0 1 }
+      <RGBA> { 0.662744998931885 0.662744998931885 0.662744998931885 1 }
+      <VertexRef> { 1 0 3 <Ref> { "<LightGray>" } }
+    }
+  }
+}
+<Group> defaultobject {
+  <Group> Layer_Layer0 {
+    <VertexPool> Layer_Layer0 {
+      <Vertex> 0 {
+        24 0 1.5
+      }
+      <Vertex> 1 {
+        22 34 1.5
+      }
+      <Vertex> 2 {
+        22 2 1.5
+      }
+      <Vertex> 3 {
+        24 36 1.5
+      }
+      <Vertex> 4 {
+        0 36 1.5
+      }
+      <Vertex> 5 {
+        0 0 0
+      }
+      <Vertex> 6 {
+        0 0 1.5
+      }
+      <Vertex> 7 {
+        0 36 0
+      }
+      <Vertex> 8 {
+        2 2 1.5
+      }
+      <Vertex> 9 {
+        2 34 1.5
+      }
+      <Vertex> 10 {
+        24 36 0
+      }
+      <Vertex> 11 {
+        24 0 -0
+      }
+    }
+    <Polygon> {
+      <Normal> { 0 0 1 }
+      <RGBA> { 1 0.329412013292313 0.329412013292313 1 }
+      <VertexRef> { 0 1 2 <Ref> { Layer_Layer0 } }
+    }
+    <Polygon> {
+      <Normal> { 0 0 1 }
+      <RGBA> { 1 0.329412013292313 0.329412013292313 1 }
+      <VertexRef> { 1 0 3 <Ref> { Layer_Layer0 } }
+    }
+    <Polygon> {
+      <Normal> { -1 0 0 }
+      <RGBA> { 1 0.329412013292313 0.329412013292313 1 }
+      <VertexRef> { 4 5 6 <Ref> { Layer_Layer0 } }
+    }
+    <Polygon> {
+      <Normal> { -1 0 0 }
+      <RGBA> { 1 0.329412013292313 0.329412013292313 1 }
+      <VertexRef> { 5 4 7 <Ref> { Layer_Layer0 } }
+    }
+    <Polygon> {
+      <Normal> { 0 0 1 }
+      <RGBA> { 1 0.329412013292313 0.329412013292313 1 }
+      <VertexRef> { 8 4 6 <Ref> { Layer_Layer0 } }
+    }
+    <Polygon> {
+      <Normal> { 0 0 1 }
+      <RGBA> { 1 0.329412013292313 0.329412013292313 1 }
+      <VertexRef> { 4 8 9 <Ref> { Layer_Layer0 } }
+    }
+    <Polygon> {
+      <Normal> { 0 1 0 }
+      <RGBA> { 1 0.329412013292313 0.329412013292313 1 }
+      <VertexRef> { 4 10 7 <Ref> { Layer_Layer0 } }
+    }
+    <Polygon> {
+      <Normal> { 0 1 0 }
+      <RGBA> { 1 0.329412013292313 0.329412013292313 1 }
+      <VertexRef> { 10 4 3 <Ref> { Layer_Layer0 } }
+    }
+    <Polygon> {
+      <Normal> { 0 -1 0 }
+      <RGBA> { 1 0.329412013292313 0.329412013292313 1 }
+      <VertexRef> { 0 5 11 <Ref> { Layer_Layer0 } }
+    }
+    <Polygon> {
+      <Normal> { 0 -1 0 }
+      <RGBA> { 1 0.329412013292313 0.329412013292313 1 }
+      <VertexRef> { 5 0 6 <Ref> { Layer_Layer0 } }
+    }
+    <Polygon> {
+      <Normal> { 0 0 1 }
+      <RGBA> { 1 0.329412013292313 0.329412013292313 1 }
+      <VertexRef> { 0 8 6 <Ref> { Layer_Layer0 } }
+    }
+    <Polygon> {
+      <Normal> { 0 0 1 }
+      <RGBA> { 1 0.329412013292313 0.329412013292313 1 }
+      <VertexRef> { 8 0 2 <Ref> { Layer_Layer0 } }
+    }
+    <Polygon> {
+      <Normal> { 0 0 1 }
+      <RGBA> { 1 0.329412013292313 0.329412013292313 1 }
+      <VertexRef> { 9 3 4 <Ref> { Layer_Layer0 } }
+    }
+    <Polygon> {
+      <Normal> { 0 0 1 }
+      <RGBA> { 1 0.329412013292313 0.329412013292313 1 }
+      <VertexRef> { 3 9 1 <Ref> { Layer_Layer0 } }
+    }
+    <Polygon> {
+      <Normal> { 1 0 0 }
+      <RGBA> { 1 0.329412013292313 0.329412013292313 1 }
+      <VertexRef> { 10 0 11 <Ref> { Layer_Layer0 } }
+    }
+    <Polygon> {
+      <Normal> { 1 0 0 }
+      <RGBA> { 1 0.329412013292313 0.329412013292313 1 }
+      <VertexRef> { 0 10 3 <Ref> { Layer_Layer0 } }
+    }
+  }
+}

@@ -1,0 +1,17 @@
+newmtl Layer_Layer0
+Ka 0.200000 0.200000 0.200000
+Kd 1.000000 0.329412 0.329412
+Ks 1.000000 1.000000 1.000000
+Tr 0.000000
+illum 2
+Ns 0.000000
+
+newmtl Translucent_Glass_Sky_Reflection
+Ka 0.200000 0.200000 0.200000
+Kd 0.494118 0.541176 0.717647
+Ks 1.000000 1.000000 1.000000
+Tr 0.520000
+illum 2
+Ns 0.000000
+map_Kd Translucent_Glass_Sky_Reflection.png
+
