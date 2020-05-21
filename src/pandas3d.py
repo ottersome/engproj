@@ -14,22 +14,100 @@ import sys
 import pandas as pd
 import numpy as np
 from panda3d.core import LineSegs
+from os import listdir
+from os.path import isfile, join, dirname
+import modelds
+import re
 
 
 loadPrcFileData("", "load-file-type p3assimp")
-
+dirname = dirname(__file__)
+dirToMappings = join(dirname, '../Dataset/Matterport/category_mapping.tsv')
+sceneDir = join(dirname, '../Dataset/Matterport/Alden/room#0_Prediction.csv')
 
 class MyApp(ShowBase):
 
-    def LoadSofa(self):
-        self.scene = self.loader.loadModel("/home/ottersome/Projects/EngineeringProject/Models/Alden/working/cat34_sink.egg",)
-        # Reparent the model to render.
-        self.scene.reparentTo(self.render)
-        ## Apply scale and position transforms on the model.
-        self.scene.setScale(0.25, 0.25, 0.25)
-        self.scene.setPos(0, 0, 10)
+    def __init__(self):
+        ShowBase.__init__(self)
+        self.amntObjs = 0
+        self.points = []
+        self.colors = []
+        self.a0 = []
+        self.a1 = []
+        self.a0n = []
+        self.a1n = []
+        self.a2n = []
 
-        self.notgottie = [2,22,38,39,40]
+        self.meloader = modelds.MyLoader(self,dirToMappings)
+
+        self.loadPerSpec("/home/ottersome/Projects/EngProj/Dataset/1LXtFkjw3qLregion2.csv",
+            '/home/ottersome/Projects/EngProj/Models/Alden/CorrectedModels')
+        self.drawPlane()
+        # self.LoadSofa()
+        #self.testAxis("/home/ottersome/Projects/EngProj/Models/Alden/CorrectedModels")
+        self.drawSpherex(self.points)
+        self.drawLineSegments(self.points)
+        base.disableMouse()
+        base.camera.setPos(-2,-18,20)
+        base.camera.lookAt(-2,-18,0)
+        base.oobe()
+
+        #plight = PointLight('plight')
+        #plight.setColor((0.9, 0.9, 0.9, 1))
+        #plnp = render.attachNewNode(plight)
+        #plnp.setPos(0, 0, 1)
+        #render.setLight(plnp)
+        #  ambientLight = AmbientLight("Ambient Light")
+        #  ambientLight.setColor(Vec4(0.1,0.1,0.1,1))
+        #  self.ambientLightNP = self.render.attachNewNode(ambientLight)
+        #  self.render.setLight(self.ambientLightNP)
+        #self.taskMgr.add(self.spinCameraTask,"SpinCameraTask")
+
+    def testAxis(self, path):
+        # Get files from give directory
+        eggfiles = [f for f in listdir(path) if isfile(join(path, f)) and f.endswith(".egg")]
+        #max length 
+        xPos = -20
+        yPos = -20
+        for f in eggfiles:
+            print("Testing ", f)
+            #obj = self.loader.loadModel("/home/ottersome/Projects/EngProj/Models/Alden/CorrectedModels/"+f)
+            obj = self.meloader.loadModel("/home/ottersome/Projects/EngProj/Models/Alden/CorrectedModels/"+f)
+            # Reparent the model to render.
+            obj.reparentTo(self.render)
+            ## Apply scale and position transforms on the model.
+            obj.setPos(xPos, yPos, 2)
+            print("Setting at pos",xPos,",",yPos)
+            xPos += 3
+            plight = PointLight('estapos')
+            plight.setColor((0.9, 0.9, 0.9, 1))
+            plnp = self.render.attachNewNode(plight)
+            plnp.setPos(xPos, yPos, 0.5)
+            self.render.setLight(plnp)
+            if xPos > 20:
+                xPos = -20
+                yPos += 5
+
+
+    def loadPerSpec(self,datasetPath,nyuLoadedModels):
+        #Load this two 
+        #self.meloader.loadNYU40(nyuLoadedModels)
+        self.meloader.loadScene(sceneDir)
+        #self.getPoints()
+
+        models = self.meloader.loadedNodePaths
+        print("Resulting Models : ",models)
+
+        #TODO we have to handle multiple instance of the same
+        #type of object
+        df = pd.read_csv(sceneDir)
+        counter =0
+        for index,row in df.iterrows():
+            modelo = models[int(row['categoryIndex'])]
+            counter += 1
+
+        #Lets try loading 
+
 
     def getPoints(self):
         df = pd.read_csv(sys.argv[1])
@@ -49,46 +127,6 @@ class MyApp(ShowBase):
             #print("Ford index : %d Coords : (%.3f,%.3f,%.3f)"%
             #    (row['objectIndex'],row['px'],row['py'],row['pz']))
 
-    def __init__(self):
-        ShowBase.__init__(self)
-        self.amntObjs = 0
-        self.points = []
-        self.colors = []
-        self.a0 = []
-        self.a1 = []
-        self.a0n = []
-        self.a1n = []
-        self.a2n = []
-
-
-        # Load the environment model.
-
-        #arrs = self.GeomVertexArraFormat()
-        #arrs.addColumn("vertex",3,Geom.NTFloat32,Geom.CPoint)
-        #forms = GeomVertexFormat()
-        #forms.addArray(arrs)
-        #forms = GeomVertexFormat.registerFormat(forms)
-        self.getPoints()
-
-        self.drawPlane()
-        self.LoadSofa()
-        self.drawSpherex(self.points)
-        self.drawLineSegments(self.points)
-        base.disableMouse()
-        base.camera.setPos(-2,-18,20)
-        base.camera.lookAt(-2,-18,0)
-        base.oobe()
-
-        plight = PointLight('plight')
-        plight.setColor((0.9, 0.9, 0.9, 1))
-        plnp = render.attachNewNode(plight)
-        plnp.setPos(0, 0, 1)
-        render.setLight(plnp)
-        #  ambientLight = AmbientLight("Ambient Light")
-        #  ambientLight.setColor(Vec4(0.1,0.1,0.1,1))
-        #  self.ambientLightNP = self.render.attachNewNode(ambientLight)
-        #  self.render.setLight(self.ambientLightNP)
-        #self.taskMgr.add(self.spinCameraTask,"SpinCameraTask")
 
     def spinCameraTask(self, task):
         angleDegrees = task.time * 6.0
@@ -132,8 +170,6 @@ class MyApp(ShowBase):
 
         nodePath = self.render.attachNewNode(node)
 
-
-
     def drawSpherex(self,points):
 
         vdata = GeomVertexData('',GeomVertexFormat.getV3c4(),Geom.UHStatic)
@@ -168,18 +204,6 @@ class MyApp(ShowBase):
         ls.setThickness(5)
         ind = 0
         for point in points:
-            #ls.setColor(self.colors[ind][0],self.colors[ind][1],self.colors[ind][1],0.7)
-            #ls.moveTo(float(point[0]),float(point[1]),float(point[2]))
-            #ls.drawTo(float(point[0]+self.a0[ind][0]),point[1]+float(self.a0[ind][1]),point[2]+float(self.a0[ind][2]))
-
-            #ls.moveTo(float(point[0]),float(point[1]),float(point[2]))
-            #ls.drawTo(float(point[0]+self.a1[ind][0]),point[1]+float(self.a1[ind][1]),point[2]+float(self.a1[ind][2]))
-
-            #a2 = np.cross(self.a0[ind],self.a1[ind])
-            #print("A2 is : ",a2)
-            ##ls.setColor(1,0,0,0.7)
-            #ls.moveTo(float(point[0]),float(point[1]),float(point[2]))
-            #ls.drawTo(float(point[0]+a2[0]),point[1]+float(a2[1]),point[2]+float(a2[2]))
 
             #Draw th new threes
             ls.setColor(1,0,0,0.7)
@@ -206,10 +230,6 @@ class MyApp(ShowBase):
 
     def unit_vector(self,vector):
         return vector / np.linalg.norm(vector)
-
-
-
-
 
 app = MyApp()
 app.run()
