@@ -21,8 +21,7 @@ class MyLoader(Loadies.Loader):
         self.loadedNodePaths = []#This will store individual instances per scene
         #self.mappings = pd.read_csv(mappingDir, sep='\t')
         self.nyuNames = [None]*40
-        self.
-        
+        self.getModelEggNames(modelDir)
         return super().__init__(baseo)
 
     def scaleNP(self,nodePath):
@@ -32,6 +31,7 @@ class MyLoader(Loadies.Loader):
         compList = [dimensions.getX(), dimensions.getY(), dimensions.getZ()]
         print("Max From list : ", max(compList));
         nodePath.setScale(1 / max(compList))
+
     def loadModel(self, modelPath, loaderOptions = None, noCache = None,
                   allowInstance = False, okMissing = None,
                   callback = None, extraArgs = [], priority = None,
@@ -47,21 +47,27 @@ class MyLoader(Loadies.Loader):
         result = re.findall(r'[0-9]+', fileName)
         return int(result[0])
 
-    def getNames(self.modelDir):
+    def getModelEggNames(self,modelDir):
         #Populate array with names
         eggfiles = [f for f in listdir(modelDir) if isfile(join(modelDir, f)) and f.endswith(".egg")]
         for f in eggfiles:
             indo = self.getCatIndex(f)
             self.nyuNames[indo] = f
-            
+        #Done
 
-    def loadScene(self,sceneDir):
+    def loadScene(self,sceneDir,modelsDir):
         df = pd.read_csv(sceneDir,delimiter=',',header=None)
         #for row in range(0,len(df.index)):
         for index, row in df.iterrows():
             #nyu40Index = int(self.mappings.iloc[int(row['categoryIndex'])]['nyu40id'])
             nyu40Index = int(row[0])
-            nameOfFile = "cat"+str(nyu40Index)
+            if nyu40Index not in self.notgottie:
+                nameOfFile = self.nyuNames[nyu40Index]
+                absPathToFile  = join(modelsDir,nameOfFile)
+                self.loadedNodePaths.append(self.loadModel(absPathToFile))
+            else: 
+                self.loadedNodePaths.append(None)
+
             #print("Nyu index for ",row['categoryIndex']," is : ",nyu40Index)
             #With that out of the way
 
