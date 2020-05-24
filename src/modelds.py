@@ -81,4 +81,6 @@ class MyLoader(Loadies.Loader):
             nodePath = self.loadModel("/home/ottersome/Projects/EngProj/Models/Alden/CorrectedModels/"+f)
             self.loadedNodePaths[catIndex] = nodePath
             pass
+    def returnAngles(a0,iHat,a1,jHat,a2,zHat):
+        pass
 

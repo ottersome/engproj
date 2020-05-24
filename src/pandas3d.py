@@ -39,6 +39,7 @@ class MyApp(ShowBase):
         self.a1n = []
         self.a2n = []
         self.radii = []
+        self.notgottie = [1,2,22,38,39,40]
 
         self.meloader = modelds.MyLoader(self,dirToModels)
 
@@ -107,23 +108,24 @@ class MyApp(ShowBase):
         df = pd.read_csv(sceneDir)
         objIndex =0
         for index,row in df.iterrows():
-            modelo = models[objIndex]
-            if modelo != None:
-                #Actually Attach to scene to render
-                print("Rendering : ",modelo, ' at : {:2.2} {:2.2} {:2.2}'.format(row[1],row[2],row[3]))
-                print("\twith a0 : ",' at : {:2.2} {:2.2} {:2.2}'.format(row[4],row[5],row[6]))
-                print("\twith a1 : ",' at : {:2.2} {:2.2} {:2.2}'.format(row[7],row[8],row[9]))
-                modelo.reparentTo(self.render)
-                #modelo.setPos(row[1],row[2],row[3])
+            if int(row[0]) not in self.notgottie:
+                modelo = models[int(row[0])]
+                if modelo != None:
+                    #Actually Attach to scene to render
+                    print("Rendering : ",modelo, ' at : {:2.2} {:2.2} {:2.2}'.format(row[1],row[2],row[3]))
+                    print("\twith a0 : ",' at : {:2.2} {:2.2} {:2.2}'.format(row[4],row[5],row[6]))
+                    print("\twith a1 : ",' at : {:2.2} {:2.2} {:2.2}'.format(row[7],row[8],row[9]))
+                    modelo.reparentTo(self.render)
+                    #modelo.setPos(row[1],row[2],row[3])
 
-                #Drawing Label
-                text = TextNode('Nodess')
-                text.setText('Esta')
-                textNodePath = self.render.attachNewNode(text)
-                textNodePath.setPos(row[1],row[2],row[3])
-                textNodePath.setColor(0.7,0.1,0.1,1)
-                textNodePath.setScale(0.2,0.2,0.2)
-            objIndex += 1
+                    #Drawing Label
+                    text = TextNode('Nodess')
+                    text.setText('Esta: {:}'.format(row[0]))
+                    textNodePath = self.render.attachNewNode(text)
+                    textNodePath.setPos(row[1],row[2],row[3])
+                    textNodePath.setColor(0.7,0.1,0.1,1)
+                    textNodePath.setScale(0.2,0.2,0.2)
+                objIndex += 1
 
         #Lets try loading 
     def drawBoundingBoxes(self,row):
@@ -160,11 +162,11 @@ class MyApp(ShowBase):
 
 
     def getPoints(self):
-        self.notgottie = [2,22,38,39,40]
         df = pd.read_csv(sceneDir)
         objIndex =0
         for index,row in df.iterrows():
-            if row[0] not in self.notgottie:
+            if int(row[0]) not in self.notgottie:
+                print('This is it : ',int(row[0]))
                 self.points.append([row[1],row[2],row[3]])
                 self.a0.append([row[4],row[5],row[6]]);
                 self.a1.append([row[7],row[8],row[9]]);
@@ -178,6 +180,43 @@ class MyApp(ShowBase):
 
                 #Radii
                 self.radii.append([row[10],row[11],row[12]]);
+
+                print('Sorting axis...')
+                # Sort Axes:
+                if(self.radii[-1][1] > self.radii[-1][0]):
+                    swap_axis = self.a0n[-1]
+                    swap_radii = self.radii[-1][0]
+
+                    self.a0n[-1] = self.a1n[-1]
+                    self.radii[-1][0] = self.radii[-1][1]
+
+                    self.a1n[-1] = swap_axis
+                    self.radii[-1][1] = swap_radii
+
+                if(self.radii[-1][2] > self.radii[-1][0]):
+                    swap_axis = self.a0n[-1]
+                    swap_radii = self.radii[-1][0]
+
+                    self.a0n[-1] = self.a2n[-1]
+                    self.radii[-1][0] = self.radii[-1][2]
+
+                    self.a2n[-1] = swap_axis
+                    self.radii[-1][2] = swap_radii
+
+                if(self.radii[-1][2] > self.radii[-1][1]):
+                    swap_axis = self.a1n[-1]
+                    swap_radii = self.radii[-1][1]
+
+                    self.a1n[-1] = self.a2n[-1]
+                    self.radii[-1][1] = self.radii[-1][2]
+
+                    self.a2n[-1] = swap_axis
+                    self.radii[-1][2] = swap_radii
+
+                # No Idea why thi is idone
+                self.a2n[-1]  = np.cross(self.a0n[-1],self.a1n[-1])
+                self.a2n[-1] =  (self.a2n[-1]/np.linalg.norm(self.a2n[-1]))
+                
 
                 #print("Ford index : %d Coords : (%.3f,%.3f,%.3f)"%
                 #    (row['objectIndex'],row['px'],row['py'],row['pz']))
