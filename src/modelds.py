@@ -6,17 +6,12 @@ from os import listdir
 from os.path import isfile, join
 import re
 import pandas as pd
+import mymathnutils as mmu
 
-class Model(NodePath):
-    def __init__(self,path):
-        #Default because the dataset is only non-neg nums
-        self.category_index = -1
-        pass
 
 class MyLoader(Loadies.Loader):
     def __init__(self,baseo,modelDir):
         print("Initializing me loadies")
-        self.notgottie = [2,22,38,39,40]
         #self.loadedNodePaths = 40*[None]#This will store our models; This was for when we wanted to load only 40 of em
         self.loadedNodePaths = []#This will store individual instances per scene
         #self.mappings = pd.read_csv(mappingDir, sep='\t')
@@ -61,7 +56,7 @@ class MyLoader(Loadies.Loader):
         for index, row in df.iterrows():
             #nyu40Index = int(self.mappings.iloc[int(row['categoryIndex'])]['nyu40id'])
             nyu40Index = int(row[0])
-            if nyu40Index not in self.notgottie:
+            if nyu40Index not in mmu.notgottie:
                 nameOfFile = self.nyuNames[nyu40Index]
                 absPathToFile  = join(modelsDir,nameOfFile)
                 self.loadedNodePaths.append(self.loadModel(absPathToFile))

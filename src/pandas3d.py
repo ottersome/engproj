@@ -18,6 +18,8 @@ from os import listdir
 from os.path import isfile, join, dirname, abspath
 import modelds
 import re
+import mymathnutils
+from ds_object import SceneObj
 
 
 loadPrcFileData("", "load-file-type p3assimp")
@@ -25,21 +27,20 @@ dirname = dirname(__file__)
 dirToMappings = join(dirname, '../Dataset/Matterport/category_mapping.tsv')
 dirToModels = join(dirname, '../Models/Alden/CorrectedModels/')
 sceneDir = join(dirname, '../Dataset/Matterport/Alden/room#0_RealValues.csv')
+#sceneDir = join(dirname, '../Dataset/Matterport/Alden/room#1200_RealValues.csvI')
+
 
 class MyApp(ShowBase):
 
     def __init__(self):
         ShowBase.__init__(self)
         self.amntObjs = 0
-        self.points = []
-        self.colors = []
-        self.a0 = []
-        self.a1 = []
-        self.a0n = []
-        self.a1n = []
-        self.a2n = []
-        self.radii = []
-        self.notgottie = [1,2,22,38,39,40]
+
+        #Replace this bois...
+        self.colors = []# Maybe except this
+        self.scnObjs = []
+
+
 
         self.meloader = modelds.MyLoader(self,dirToModels)
 
@@ -50,7 +51,7 @@ class MyApp(ShowBase):
         #self.testAxis("/home/ottersome/Projects/EngProj/Models/Alden/CorrectedModels")
         #self.drawSpherex(self.points)
         self.drawBoundingBoxes(None)
-        self.drawLineSegments(self.points)
+        self.drawLineSegments(self.scnObjs)
         base.disableMouse()
         base.camera.setPos(-2,-18,20)
         base.camera.lookAt(-2,-18,0)
@@ -98,7 +99,6 @@ class MyApp(ShowBase):
         #Load this two 
         #self.meloader.loadNYU40(nyuLoadedModels)
         self.meloader.loadScene(abspath(sceneDir),abspath(dirToModels))
-        #self.getPoints()
 
         models = self.meloader.loadedNodePaths
         print("Resulting Models : ",models)
@@ -108,8 +108,8 @@ class MyApp(ShowBase):
         df = pd.read_csv(sceneDir)
         objIndex =0
         for index,row in df.iterrows():
-            if int(row[0]) not in self.notgottie:
-                modelo = models[int(row[0])]
+            if int(row[0]) not in mymathnutils.notgottie:
+                modelo = models[objIndex]
                 if modelo != None:
                     #Actually Attach to scene to render
                     print("Rendering : ",modelo, ' at : {:2.2} {:2.2} {:2.2}'.format(row[1],row[2],row[3]))
@@ -136,16 +136,18 @@ class MyApp(ShowBase):
         color = GeomVertexWriter(vdata,'color')
         counter = 0
 
-        for point in self.points:
+        #for point in self.points:
+        for scnobj in self.scnObjs:
             self.amntObjs = self.amntObjs +1
-            vertex.addData3f(point[0],point[1],point[2])
+            vertex.addData3f(scnobj.pos[0],scnobj.pos[1],scnobj.pos[2])
             self.colors.append([random(),random(),random()])
             color.addData4f(self.colors[-1][0],self.colors[-1][1],self.colors[-1][0],1)
 
             #Actual BBox
-            self.drawBBox(point,self.a0n[counter],self.a0n[counter],self.radii[counter])
+            self.drawBBox(scnobj)
             counter +=1
 
+        #Actually render points
         prim = GeomPoints(Geom.UHStatic)
         prim.add_consecutive_vertices(0,self.amntObjs)
         prim.close_primitive()
@@ -165,58 +167,63 @@ class MyApp(ShowBase):
         df = pd.read_csv(sceneDir)
         objIndex =0
         for index,row in df.iterrows():
-            if int(row[0]) not in self.notgottie:
+            if int(row[0]) not in mymathnutils.notgottie:
                 print('This is it : ',int(row[0]))
-                self.points.append([row[1],row[2],row[3]])
-                self.a0.append([row[4],row[5],row[6]]);
-                self.a1.append([row[7],row[8],row[9]]);
+                point=[row[1],row[2],row[3]]
+                a0=[row[4],row[5],row[6]]
+                a1=[row[7],row[8],row[9]]
                 
-                self.a0n.append(self.a0[-1]/np.linalg.norm(self.a0[-1]))
-                self.a1n.append(self.a1[-1]/np.linalg.norm(self.a1[-1]))
-                self.a1n[-1]  = np.cross(self.a0n[-1],self.a1n[-1])
-                self.a1n[-1]  = np.cross(self.a1n[-1],self.a0n[-1])
-                self.a1n[-1] =  (self.a1n[-1]/np.linalg.norm(self.a1n[-1]))
-                self.a2n.append(np.cross(self.a0n[-1],self.a1n[-1]));
+                a0n=a0/np.linalg.norm(a0)
+                a1n=a1/np.linalg.norm(a1)
+                a1n = np.cross(a0n,a1n)
+                a1n = np.cross(a1n,a0n)
+                a1n =  (a1n/np.linalg.norm(a1n))
+                a2n = np.cross(a0n,a1n)
 
                 #Radii
-                self.radii.append([row[10],row[11],row[12]]);
+                radii=[row[10],row[11],row[12]]
 
                 print('Sorting axis...')
                 # Sort Axes:
-                if(self.radii[-1][1] > self.radii[-1][0]):
-                    swap_axis = self.a0n[-1]
-                    swap_radii = self.radii[-1][0]
+                if(radii[1] > radii[0]):
+                    swap_axis = a0n
+                    swap_radii = radii[0]
 
-                    self.a0n[-1] = self.a1n[-1]
-                    self.radii[-1][0] = self.radii[-1][1]
+                    a0n = a1n
+                    radii[0] = radii[1]
 
-                    self.a1n[-1] = swap_axis
-                    self.radii[-1][1] = swap_radii
+                    a1n = swap_axis
+                    radii[1] = swap_radii
 
-                if(self.radii[-1][2] > self.radii[-1][0]):
-                    swap_axis = self.a0n[-1]
-                    swap_radii = self.radii[-1][0]
+                if(radii[2] > radii[0]):
+                    swap_axis = a0n
+                    swap_radii = radii[0]
 
-                    self.a0n[-1] = self.a2n[-1]
-                    self.radii[-1][0] = self.radii[-1][2]
+                    a0n = a2n
+                    radii[0] = radii[2]
 
-                    self.a2n[-1] = swap_axis
-                    self.radii[-1][2] = swap_radii
+                    a2n = swap_axis
+                    radii[2] = swap_radii
 
-                if(self.radii[-1][2] > self.radii[-1][1]):
-                    swap_axis = self.a1n[-1]
-                    swap_radii = self.radii[-1][1]
+                if(radii[2] > radii[1]):
+                    swap_axis = a1n
+                    swap_radii = radii[1]
 
-                    self.a1n[-1] = self.a2n[-1]
-                    self.radii[-1][1] = self.radii[-1][2]
+                    a1n = a2n
+                    radii[1] = radii[2]
 
-                    self.a2n[-1] = swap_axis
-                    self.radii[-1][2] = swap_radii
+                    a2n = swap_axis
+                    radii[2] = swap_radii
 
                 # No Idea why thi is idone
-                self.a2n[-1]  = np.cross(self.a0n[-1],self.a1n[-1])
-                self.a2n[-1] =  (self.a2n[-1]/np.linalg.norm(self.a2n[-1]))
-                
+                a2n = np.cross(a0n,a1n)
+                a2n = (a2n/np.linalg.norm(a2n))
+
+                #Now appedn it into the scenObjs array 
+                self.scnObjs.append(SceneObj(pos = point,
+                    a0=a0n,a1=a1n,a2=a2n,
+                    radius=radii))#I know radii is not the correct term, its a recycled name
+
 
                 #print("Ford index : %d Coords : (%.3f,%.3f,%.3f)"%
                 #    (row['objectIndex'],row['px'],row['py'],row['pz']))
@@ -238,16 +245,16 @@ class MyApp(ShowBase):
         halfW = 20
 
         #Add four points that make up a plane
-        vertex.addData3f(-halfW,halfW,0)
+        vertex.addData3f(-halfW,halfW,-5)
         color.addData4f(1,1,1,1)
         normal.addData3f(0,0,1)
-        vertex.addData3f(-halfW,-halfW,0)
+        vertex.addData3f(-halfW,-halfW,-5)
         color.addData4f(1,1,1,1)
         normal.addData3f(0,0,1)
-        vertex.addData3f(halfW,halfW,0)
+        vertex.addData3f(halfW,halfW,-5)
         color.addData4f(1,1,1,1)
         normal.addData3f(0,0,1)
-        vertex.addData3f(halfW,-halfW,0)
+        vertex.addData3f(halfW,-halfW,-5)
         color.addData4f(1,1,1,1)
         normal.addData3f(0,0,1)
 
@@ -292,23 +299,27 @@ class MyApp(ShowBase):
         nodePath.setRenderModeThickness(5)
         return 0
 
-    def drawLineSegments(self,points):#Point will be origin of line segments
+    def drawLineSegments(self,scnObjs):#Point will be origin of line segments
         ls = LineSegs()
 
         ls.setThickness(5)
         ind = 0
-        for point in points:
+        for scnobj in scnObjs:
+            point = scnobj.pos
+            a0 = scnobj.a0
+            a1 = scnobj.a1
+            a2 = scnobj.a2
 
             #Draw th new threes
             ls.setColor(1,0,0,0.7)
             ls.moveTo(float(point[0]),float(point[1]),float(point[2]))
-            ls.drawTo(float(point[0]+self.a0n[ind][0]),point[1]+float(self.a0n[ind][1]),point[2]+float(self.a0n[ind][2]))
+            ls.drawTo(float(point[0]+a0[0]),point[1]+float(a0[1]),point[2]+float(a0[2]))
 
             ls.moveTo(float(point[0]),float(point[1]),float(point[2]))
-            ls.drawTo(float(point[0]+self.a1n[ind][0]),point[1]+float(self.a1n[ind][1]),point[2]+float(self.a1n[ind][2]))
+            ls.drawTo(float(point[0]+a1[0]),point[1]+float(a1[1]),point[2]+float(a1[2]))
 
             #ls.moveTo(float(point[0]),float(point[1]),float(point[2]))
-            #ls.drawTo(float(point[0]+self.a2n[ind][0]),point[1]+float(self.a2n[ind][1]),point[2]+float(self.a2n[ind][2]))
+            #ls.drawTo(float(point[0]+a2[0]),point[1]+float(a2[1]),point[2]+float(a2[2]))
 
             #ls.setColor(1,0,0,0.7)
             ind +=1
@@ -326,11 +337,10 @@ class MyApp(ShowBase):
     def unit_vector(self,vector):
         return vector / np.linalg.norm(vector)
         
-    def drawBBox(self,pos,a0,a1,radius):
+    def drawBBox(self,scnObj):
         ls = LineSegs()
-        x,y,z = pos
-        #xangle = self.getAngleBtwnVec([])
-        rx,ry,rz = radius
+        x,y,z = scnObj.pos
+        rx,ry,rz = scnObj.radius
         ls.setThickness(5)
         ls.setColor(0.2,1,0.2,1)
 
@@ -349,7 +359,9 @@ class MyApp(ShowBase):
         ls.drawTo(x+rx,y+ry,z-rz)
 
         linegeomn = ls.create(dynamic=False)
-        self.render.attachNewNode(linegeomn)
+        np  = self.render.attachNewNode(linegeomn)
+        scnObj.setNodePath(np)# Rotation should occure ere, TODO but maybe it shouldnt 
+
 
 
         
