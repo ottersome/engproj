@@ -46,7 +46,7 @@ class SceneObj:
         if self.nodePath != None:
             self.eAng = [x,y,z]
             #Why would the center of rotation be the first corner ?
-            self.nodePath.setHpr(0,0,45)
+            self.nodePath.setHpr(x,y,z)
             pass
         else:
             print('Non-existing Node Path to rotate')
