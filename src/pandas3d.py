@@ -44,6 +44,7 @@ class MyApp(ShowBase):
 
         self.meloader = modelds.MyLoader(self,dirToModels)
 
+        self.drawAxis()
         self.loadPerSpec("/home/ottersome/Projects/EngProj/Dataset/1LXtFkjw3qLregion2.csv",
             '/home/ottersome/Projects/EngProj/Models/Alden/CorrectedModels')
         self.drawPlane()
@@ -144,7 +145,7 @@ class MyApp(ShowBase):
             color.addData4f(self.colors[-1][0],self.colors[-1][1],self.colors[-1][0],1)
 
             #Actual BBox
-            self.drawBBox(scnobj)
+            self.drawOBBox(scnobj)
             counter +=1
 
         #Actually render points
@@ -162,6 +163,26 @@ class MyApp(ShowBase):
         nodePath.setRenderModeThickness(5)
         return 0
 
+    def drawAxis(self):
+        ls = LineSegs()
+        ls.setThickness(10)
+
+        #X axis 
+        ls.setColor(1,0,0,1)
+        ls.moveTo(-10,0,0)
+        ls.drawTo(10,0,0)
+
+        #Y axis 
+        ls.setColor(0,1,0,1)
+        ls.moveTo(0,-10,0)
+        ls.drawTo(0,10,0)
+
+        #Z axis 
+        ls.setColor(0,0,1,1)
+        ls.moveTo(0,0,-10)
+        ls.drawTo(0,0,10)
+        linegeomn = ls.create(dynamic=False)# Creates a geomnode
+        nodePath = self.render.attachNewNode(linegeomn)
 
     def getPoints(self):
         df = pd.read_csv(sceneDir)
@@ -315,11 +336,13 @@ class MyApp(ShowBase):
             ls.moveTo(float(point[0]),float(point[1]),float(point[2]))
             ls.drawTo(float(point[0]+a0[0]),point[1]+float(a0[1]),point[2]+float(a0[2]))
 
+            ls.setColor(0,1,0,0.7)
             ls.moveTo(float(point[0]),float(point[1]),float(point[2]))
             ls.drawTo(float(point[0]+a1[0]),point[1]+float(a1[1]),point[2]+float(a1[2]))
 
-            #ls.moveTo(float(point[0]),float(point[1]),float(point[2]))
-            #ls.drawTo(float(point[0]+a2[0]),point[1]+float(a2[1]),point[2]+float(a2[2]))
+            ls.setColor(0,0,1,0.7)
+            ls.moveTo(float(point[0]),float(point[1]),float(point[2]))
+            ls.drawTo(float(point[0]+a2[0]),point[1]+float(a2[1]),point[2]+float(a2[2]))
 
             #ls.setColor(1,0,0,0.7)
             ind +=1
@@ -342,7 +365,7 @@ class MyApp(ShowBase):
         x,y,z = scnObj.pos
         rx,ry,rz = scnObj.radius
         ls.setThickness(5)
-        ls.setColor(0.2,1,0.2,1)
+        ls.setColor(1,0.4,0.0,0.3)
 
         ls.moveTo(x,y,z)
         ls.drawTo(x+rx,y+ry,z+rz)
@@ -362,6 +385,32 @@ class MyApp(ShowBase):
         np  = self.render.attachNewNode(linegeomn)
         scnObj.setNodePath(np)# Rotation should occure ere, TODO but maybe it shouldnt 
 
+
+    def drawOBBox(self,scnObj):
+        ls = LineSegs()
+        x,y,z = scnObj.pos
+        rx,ry,rz = scnObj.radius
+        ls.setThickness(5)
+        ls.setColor(1,0.4,0.0,0.3)
+
+        ls.moveTo(0,0,0)
+        ls.drawTo(rx,ry,rz)
+        ls.drawTo(rx,-ry,rz)
+        ls.drawTo(-rx,-ry,rz)
+        ls.drawTo(-rx,ry,rz)
+        ls.drawTo(rx,ry,rz)
+ 
+        ls.moveTo(0,0,0)
+        ls.drawTo(rx,ry,-rz)
+        ls.drawTo(rx,-ry,-rz)
+        ls.drawTo(-rx,-ry,-rz)
+        ls.drawTo(-rx,ry,-rz)
+        ls.drawTo(rx,ry,-rz)
+
+        linegeomn = ls.create(dynamic=False)
+        np  = self.render.attachNewNode(linegeomn)
+        np.setPos(x,y,z)
+        scnObj.setNodePath(np)# Rotation should occure ere, TODO but maybe it shouldnt 
 
 
         
