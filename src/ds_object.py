@@ -1,5 +1,8 @@
 import mymathnutils
 from panda3d.core import *
+from panda3d.core import LMatrix4f
+from panda3d.core import LVecBase3f
+from panda3d.core import LMatrix3f
 class SceneObj:
     def __init__(self,
         pos = [0,0,0],
@@ -45,9 +48,15 @@ class SceneObj:
     def rotateSO(self,x,y,z):
         if self.nodePath != None:
             self.eAng = [x,y,z]
+            a0v = LVecBase3f(self.a0[0],self.a0[1],self.a0[2])
+            a1v = LVecBase3f(self.a1[0],self.a1[1],self.a1[2])
+            a2v = LVecBase3f(self.a2[0],self.a2[1],self.a2[2])
+            mat3 = LMatrix3f(a0v,a1v,a2v)
+            mato = LMatrix4f(mat3)
+            self.nodePath.setMat(mato)
+            self.nodePath.setPos(self.pos[0],self.pos[1],self.pos[2])
             #Why would the center of rotation be the first corner ?
-            self.nodePath.setHpr(x,y,z)
-            pass
+            #self.nodePath.setHpr(0,0,90)
         else:
             print('Non-existing Node Path to rotate')
 
