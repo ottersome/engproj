@@ -121,7 +121,7 @@ class MyApp(ShowBase):
 
                     #Drawing Label
                     text = TextNode('Nodess')
-                    text.setText('Esta: {:}'.format(row[0]))
+                    text.setText('Lbl: {:}'.format(modelo))
                     textNodePath = self.render.attachNewNode(text)
                     textNodePath.setPos(row[1],row[2],row[3])
                     textNodePath.setColor(0.7,0.1,0.1,1)
@@ -239,6 +239,9 @@ class MyApp(ShowBase):
                 # No Idea why thi is idone
                 a2n = np.cross(a0n,a1n)
                 a2n = (a2n/np.linalg.norm(a2n))
+
+                if(a2n == [0, 0, 1]):
+                    print('This is the mate with  weird a2n : ',row[0])
 
                 #Now appedn it into the scenObjs array 
                 self.scnObjs.append(SceneObj(pos = point,
