@@ -26,8 +26,10 @@ loadPrcFileData("", "load-file-type p3assimp")
 dirname = dirname(__file__)
 dirToMappings = join(dirname, '../Dataset/Matterport/category_mapping.tsv')
 dirToModels = join(dirname, '../Models/Alden/CorrectedModels/')
-sceneDir = join(dirname, '../Dataset/Matterport/Alden/room#0_RealValues.csv')
+#sceneDir = join(dirname, '../Dataset/Matterport/Alden/room#0_RealValues.csv')
 #sceneDir = join(dirname, '../Dataset/Matterport/Alden/room#1200_RealValues.csvI')
+#New format
+sceneDir = join(dirname, '../Dataset/Matterport/predictions_may26/room#1_RealValues.csv')
 
 
 class MyApp(ShowBase):
@@ -40,8 +42,6 @@ class MyApp(ShowBase):
         self.colors = []# Maybe except this
         self.scnObjs = []
 
-
-
         self.meloader = modelds.MyLoader(self,dirToModels)
 
         self.drawAxis()
@@ -52,7 +52,8 @@ class MyApp(ShowBase):
         #self.testAxis("/home/ottersome/Projects/EngProj/Models/Alden/CorrectedModels")
         #self.drawSpherex(self.points)
         self.drawBoundingBoxes(None)
-        self.drawLineSegments(self.scnObjs)
+        #Need a0,a1 for this
+        #self.drawLineSegments(self.scnObjs)
         base.disableMouse()
         base.camera.setPos(-2,-18,20)
         base.camera.lookAt(-2,-18,0)
@@ -116,7 +117,8 @@ class MyApp(ShowBase):
                     print("Rendering : ",modelo, ' at : {:2.2} {:2.2} {:2.2}'.format(row[1],row[2],row[3]))
                     print("\twith a0 : ",' at : {:2.2} {:2.2} {:2.2}'.format(row[4],row[5],row[6]))
                     print("\twith a1 : ",' at : {:2.2} {:2.2} {:2.2}'.format(row[7],row[8],row[9]))
-                    modelo.reparentTo(self.render)
+                    #IF YOU WANT TO RENDER MODELS UNCOMMENT BELOW
+                    #modelo.reparentTo(self.render)
                     #modelo.setPos(row[1],row[2],row[3])
 
                     #Drawing Label
@@ -130,7 +132,7 @@ class MyApp(ShowBase):
 
         #Lets try loading 
     def drawBoundingBoxes(self,row):
-        self.getPoints()
+        self.getPointsNQuat()
         # Let this be similar to the axis thingy
         vdata = GeomVertexData('',GeomVertexFormat.getV3c4(),Geom.UHStatic)
         vertex = GeomVertexWriter(vdata,'vertex')
@@ -183,6 +185,32 @@ class MyApp(ShowBase):
         ls.drawTo(0,0,10)
         linegeomn = ls.create(dynamic=False)# Creates a geomnode
         nodePath = self.render.attachNewNode(linegeomn)
+
+    def getPointsNQuat(self):
+        #New format is : category, px, py, pz ,qx, qy, qz, q0, r0, r1, r2
+        df = pd.read_csv(sceneDir)
+        objIndex =0
+        for index,row in df.iterrows():
+            if int(row[0]) not in mymathnutils.notgottie:
+                print('This is it : ',int(row[0]))
+                point=[row[1],row[2],row[3]]
+
+                #Quat info 
+                quat = [float(row[4]),float(row[5]),float(row[6]),float(row[7])]
+
+                #Radii
+                radii=[row[8],row[9],row[10]]
+
+                #Now appedn it into the scenObjs array 
+                self.scnObjs.append(
+                    SceneObj(pos = point,
+                    quat = quat,
+                    radius=radii))#I know radii is not the correct term, its a recycled name
+
+
+                #print("Ford index : %d Coords : (%.3f,%.3f,%.3f)"%
+                #    (row['objectIndex'],row['px'],row['py'],row['pz']))
+
 
     def getPoints(self):
         df = pd.read_csv(sceneDir)
@@ -240,9 +268,6 @@ class MyApp(ShowBase):
                 a2n = np.cross(a0n,a1n)
                 a2n = (a2n/np.linalg.norm(a2n))
 
-                if(a2n == [0, 0, 1]):
-                    print('This is the mate with  weird a2n : ',row[0])
-
                 #Now appedn it into the scenObjs array 
                 self.scnObjs.append(SceneObj(pos = point,
                     a0=a0n,a1=a1n,a2=a2n,
@@ -294,34 +319,6 @@ class MyApp(ShowBase):
         node.addGeom(geom)
 
         nodePath = self.render.attachNewNode(node)
-
-    def drawSpherex(self,points):
-
-        vdata = GeomVertexData('',GeomVertexFormat.getV3c4(),Geom.UHStatic)
-        vertex = GeomVertexWriter(vdata,'vertex')
-        color = GeomVertexWriter(vdata,'color')
-
-        for point in points:
-            self.amntObjs = self.amntObjs +1
-            vertex.addData3f(point[0],point[1],point[2])
-            self.colors.append([random(),random(),random()])
-            color.addData4f(self.colors[-1][0],self.colors[-1][1],self.colors[-1][0],1)
-
-            #Draw a line Segment pointing down
-
-        prim = GeomPoints(Geom.UHStatic)
-        prim.add_consecutive_vertices(0,self.amntObjs)
-        prim.close_primitive()
-
-        geom = Geom(vdata)
-        geom.addPrimitive(prim)
-
-        node = GeomNode('gnode')
-        node.addGeom(geom)
-
-        nodePath = self.render.attachNewNode(node)
-        nodePath.setRenderModeThickness(5)
-        return 0
 
     def drawLineSegments(self,scnObjs):#Point will be origin of line segments
         ls = LineSegs()
