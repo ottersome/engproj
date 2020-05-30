@@ -26,7 +26,7 @@ loadPrcFileData("", "load-file-type p3assimp")
 dirname = dirname(__file__)
 dirToMappings = join(dirname, '../Dataset/Matterport/category_mapping.tsv')
 dirToModels = join(dirname, '../Models/Alden/CorrectedModels/')
-sceneDir = join(dirname, '../Dataset/Matterport/Alden/room#0_RealValues.csv')
+sceneDir = join(dirname, '../Dataset/Matterport/Alden/room#0_Prediction.csv')
 #sceneDir = join(dirname, '../Dataset/Matterport/Alden/room#1200_RealValues.csvI')
 
 
@@ -117,7 +117,7 @@ class MyApp(ShowBase):
                     print("\twith a0 : ",' at : {:2.2} {:2.2} {:2.2}'.format(row[4],row[5],row[6]))
                     print("\twith a1 : ",' at : {:2.2} {:2.2} {:2.2}'.format(row[7],row[8],row[9]))
                     modelo.reparentTo(self.render)
-                    #modelo.setPos(row[1],row[2],row[3])
+                    modelo.setPos(float(row[1]),float(row[2]),(row[3]))
 
                     #Drawing Label
                     text = TextNode('Nodess')

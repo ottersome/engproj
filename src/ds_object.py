@@ -30,7 +30,8 @@ class SceneObj:
             self.a1, self.a2)
 
         #Panda3D
-        self.nodePath = None
+        self.nodePath = None#Bounding Box
+        self.ModelNodePath = None#Bounding Box
 
         pass
     
