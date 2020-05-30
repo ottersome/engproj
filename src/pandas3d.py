@@ -8,7 +8,7 @@ from direct.showbase.ShowBase import ShowBase
 from panda3d.core import *
 
 from direct.task import Task
-from random import random
+from numpy.random import rand
 
 import sys
 import pandas as pd
@@ -26,11 +26,17 @@ loadPrcFileData("", "load-file-type p3assimp")
 dirname = dirname(__file__)
 dirToMappings = join(dirname, '../Dataset/Matterport/category_mapping.tsv')
 dirToModels = join(dirname, '../Models/Alden/CorrectedModels/')
-#sceneDir = join(dirname, '../Dataset/Matterport/Alden/room#0_RealValues.csv')
+#  sceneDir = join(dirname, '../Dataset/Matterport/Alden/room#0_RealValues.csv')
 #sceneDir = join(dirname, '../Dataset/Matterport/Alden/room#1200_RealValues.csvI')
 #New format
-sceneDir = join(dirname, '../Dataset/Matterport/predictions_may26/room#1_RealValues.csv')
+#sceneDir = join(dirname, '../Dataset/Matterport/predictions_may26/room#1_RealValues.csv')
+#Defautl rotation mode
 
+defRotMode = 'quat'
+#sceneDir = join(dirname, '../Dataset/Matterport/predictions_may26/room#1_RealValues.csv')
+sceneDir = join(dirname, '../Dataset/Matterport/3rdFormat/room#47_RealValues.csv')
+if len(sys.argv) >= 2 and sys.argv[1] != None :
+    defRotMode = sys.argv[1] 
 
 class MyApp(ShowBase):
 
@@ -53,7 +59,7 @@ class MyApp(ShowBase):
         #self.drawSpherex(self.points)
         self.drawBoundingBoxes(None)
         #Need a0,a1 for this
-        #self.drawLineSegments(self.scnObjs)
+        self.drawLineSegments(self.scnObjs)
         base.disableMouse()
         base.camera.setPos(-2,-18,20)
         base.camera.lookAt(-2,-18,0)
@@ -132,37 +138,13 @@ class MyApp(ShowBase):
 
         #Lets try loading 
     def drawBoundingBoxes(self,row):
+        #self.getPoints()
         self.getPointsNQuat()
-        # Let this be similar to the axis thingy
-        vdata = GeomVertexData('',GeomVertexFormat.getV3c4(),Geom.UHStatic)
-        vertex = GeomVertexWriter(vdata,'vertex')
-        color = GeomVertexWriter(vdata,'color')
-        counter = 0
 
         #for point in self.points:
         for scnobj in self.scnObjs:
-            self.amntObjs = self.amntObjs +1
-            vertex.addData3f(scnobj.pos[0],scnobj.pos[1],scnobj.pos[2])
-            self.colors.append([random(),random(),random()])
-            color.addData4f(self.colors[-1][0],self.colors[-1][1],self.colors[-1][0],1)
-
-            #Actual BBox
             self.drawOBBox(scnobj)
-            counter +=1
 
-        #Actually render points
-        prim = GeomPoints(Geom.UHStatic)
-        prim.add_consecutive_vertices(0,self.amntObjs)
-        prim.close_primitive()
-
-        geom = Geom(vdata)
-        geom.addPrimitive(prim)
-
-        node = GeomNode('gnode')
-        node.addGeom(geom)
-
-        nodePath = self.render.attachNewNode(node)
-        nodePath.setRenderModeThickness(5)
         return 0
 
     def drawAxis(self):
@@ -192,19 +174,63 @@ class MyApp(ShowBase):
         objIndex =0
         for index,row in df.iterrows():
             if int(row[0]) not in mymathnutils.notgottie:
-                print('This is it : ',int(row[0]))
                 point=[row[1],row[2],row[3]]
 
                 #Quat info 
                 quat = [float(row[4]),float(row[5]),float(row[6]),float(row[7])]
 
-                #Radii
-                radii=[row[8],row[9],row[10]]
+                #A thingers
+                a0n = [row[8],row[9],row[10]]
+                a1n = [row[11],row[12],row[13]]
 
+                #Radii
+                radii=[row[14],row[15],row[16]]
+
+                #  print('Sorting axis...')
+                # Sort Axes:
+                if(radii[1] > radii[0]):
+                    swap_axis = a0n
+                    swap_radii = radii[0]
+
+                    a0n = a1n
+                    radii[0] = radii[1]
+
+                    a1n = swap_axis
+                    radii[1] = swap_radii
+
+                if(radii[2] > radii[0]):
+                    swap_axis = a0n
+                    swap_radii = radii[0]
+
+                    a0n = a2n
+                    radii[0] = radii[2]
+
+                    a2n = swap_axis
+                    radii[2] = swap_radii
+
+                if(radii[2] > radii[1]):
+                    swap_axis = a1n
+                    swap_radii = radii[1]
+
+                    a1n = a2n
+                    radii[1] = radii[2]
+
+                    a2n = swap_axis
+                    radii[2] = swap_radii
+
+                # No Idea why thi is idone
+                a2n = np.cross(a0n,a1n)
+                a2n = (a2n/np.linalg.norm(a2n))
+
+                print("Rotation mode is : ", defRotMode)
                 #Now appedn it into the scenObjs array 
                 self.scnObjs.append(
                     SceneObj(pos = point,
                     quat = quat,
+                    mode = defRotMode,
+                    a0 = a0n,
+                    a1 = a1n,
+                    a2 = a2n,
                     radius=radii))#I know radii is not the correct term, its a recycled name
 
 
@@ -217,7 +243,7 @@ class MyApp(ShowBase):
         objIndex =0
         for index,row in df.iterrows():
             if int(row[0]) not in mymathnutils.notgottie:
-                print('This is it : ',int(row[0]))
+                #print('This is it : ',int(row[0]))
                 point=[row[1],row[2],row[3]]
                 a0=[row[4],row[5],row[6]]
                 a1=[row[7],row[8],row[9]]
@@ -232,7 +258,7 @@ class MyApp(ShowBase):
                 #Radii
                 radii=[row[10],row[11],row[12]]
 
-                print('Sorting axis...')
+                #print('Sorting axis...')
                 # Sort Axes:
                 if(radii[1] > radii[0]):
                     swap_axis = a0n
@@ -390,8 +416,9 @@ class MyApp(ShowBase):
         ls = LineSegs()
         x,y,z = scnObj.pos
         rx,ry,rz = scnObj.radius
-        ls.setThickness(5)
-        ls.setColor(1,0.4,0.0,0.3)
+        ls.setThickness(1)
+        #ls.setColor(1,0.4,0.0,0.3)
+        ls.setColor(rand(),rand(),rand(),0.3)
 
         ls.moveTo(0,0,0)
         ls.drawTo(rx,ry,rz)
@@ -406,6 +433,20 @@ class MyApp(ShowBase):
         ls.drawTo(-rx,-ry,-rz)
         ls.drawTo(-rx,ry,-rz)
         ls.drawTo(rx,ry,-rz)
+
+        #Done with top sides
+        # Now with other sides
+        ls.moveTo(rx,ry,rz)
+        ls.drawTo(rx,ry,-rz)
+
+        ls.moveTo(rx,-ry,rz)
+        ls.drawTo(rx,-ry,-rz)
+
+        ls.moveTo(-rx,-ry,rz)
+        ls.drawTo(-rx,-ry,-rz)
+
+        ls.moveTo(-rx,ry,rz)
+        ls.drawTo(-rx,ry,-rz)
 
         linegeomn = ls.create(dynamic=False)
         np  = self.render.attachNewNode(linegeomn)

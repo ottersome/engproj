@@ -1,4 +1,4 @@
-iport mymathnutils
+import mymathnutils
 from panda3d.core import *
 from panda3d.core import LMatrix4f
 from panda3d.core import LVecBase3f
@@ -11,7 +11,8 @@ class SceneObj:
         a1 = [0,0,0],
         a2 = [0,0,0],
         radius = [0,0,0],
-        quat = [0,0,0,0]
+        quat = [0,0,0,0],
+        mode = 'quat'
     ):
 
         #Model Stuff
@@ -29,6 +30,8 @@ class SceneObj:
 
         #Quat Stuff
         self.quat = quat
+        
+        self.mode = mode
 
         #cur eurler angles(shouldnt interfere with nw podel)
         self.eAng = mymathnutils.getFullRot(self.a0,
@@ -43,12 +46,16 @@ class SceneObj:
         self.pos = [x,y,z]
 
     def setNodePath(self,nodePath):
-        print('Setting Node Path for ')
         self.nodePath = nodePath
-        print('Rotating for : ', self.eAng)
-        #self.rotateSO(self.eAng[0],
-            #self.eAng[1],self.eAng[2])
-        self.rotQuat(self.quat)
+
+        # Different Rotation Procedures
+        # According to whether we use quats 
+        # or a0 and a1
+        if self.mode != 'quat':
+            self.rotateSO(self.eAng[0],
+                self.eAng[1],self.eAng[2])
+        else:
+            self.rotQuat(self.quat)
         
     def rotateSO(self,x,y,z):
         if self.nodePath != None:
