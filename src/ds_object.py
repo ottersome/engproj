@@ -1,15 +1,17 @@
-import mymathnutils
+iport mymathnutils
 from panda3d.core import *
 from panda3d.core import LMatrix4f
 from panda3d.core import LVecBase3f
 from panda3d.core import LMatrix3f
+from panda3d.core import LQuaternion
 class SceneObj:
     def __init__(self,
         pos = [0,0,0],
         a0 = [0,0,0],
         a1 = [0,0,0],
         a2 = [0,0,0],
-        radius = [0,0,0]
+        radius = [0,0,0],
+        quat = [0,0,0,0]
     ):
 
         #Model Stuff
@@ -25,15 +27,16 @@ class SceneObj:
         self.a2 = a2
         self.radius = radius
 
-        #cur eurler angles
+        #Quat Stuff
+        self.quat = quat
+
+        #cur eurler angles(shouldnt interfere with nw podel)
         self.eAng = mymathnutils.getFullRot(self.a0,
             self.a1, self.a2)
 
         #Panda3D
         self.nodePath = None#Bounding Box
         self.ModelNodePath = None#Bounding Box
-
-        pass
     
 
     def setPos(self,x,y,z):
@@ -43,8 +46,9 @@ class SceneObj:
         print('Setting Node Path for ')
         self.nodePath = nodePath
         print('Rotating for : ', self.eAng)
-        self.rotateSO(self.eAng[0],
-            self.eAng[1],self.eAng[2])
+        #self.rotateSO(self.eAng[0],
+            #self.eAng[1],self.eAng[2])
+        self.rotQuat(self.quat)
         
     def rotateSO(self,x,y,z):
         if self.nodePath != None:
@@ -60,6 +64,12 @@ class SceneObj:
             #self.nodePath.setHpr(0,0,90)
         else:
             print('Non-existing Node Path to rotate')
+
+    def rotQuat(self,quat4):
+        quato = LQuaternion(quat4[3],quat4[0],quat4[1],quat4[2])
+        self.nodePath.setQuat(quat = quato)
+        #That should be it
+
 
     def __str__(self):
         return self.modelPath
