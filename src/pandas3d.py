@@ -34,7 +34,8 @@ dirToModels = join(dirname, '../Models/Alden/CorrectedModels/')
 
 defRotMode = 'quat'
 #sceneDir = join(dirname, '../Dataset/Matterport/predictions_may26/room#1_RealValues.csv')
-sceneDir = join(dirname, '../Dataset/Matterport/3rdFormat/room#47_RealValues.csv')
+#sceneDir = join(dirname, '../Dataset/Matterport/3rdFormat/room#47_RealValues.csv')
+sceneDir = join(dirname, '../Dataset/Matterport/3rdFormat/room#760_RealValues.csv')
 if len(sys.argv) >= 2 and sys.argv[1] != None :
     defRotMode = sys.argv[1] 
 
