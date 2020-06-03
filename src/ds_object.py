@@ -75,6 +75,7 @@ class SceneObj:
     def rotQuat(self,quat4):
         quato = LQuaternion(quat4[3],quat4[0],quat4[1],quat4[2])
         self.nodePath.setQuat(quat = quato)
+        self.nodePath.setPos(self.pos[0],self.pos[1],self.pos[2])
         #That should be it
 
 

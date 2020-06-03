@@ -451,7 +451,7 @@ class MyApp(ShowBase):
 
         linegeomn = ls.create(dynamic=False)
         np  = self.render.attachNewNode(linegeomn)
-        np.setPos(x,y,z)
+        #np.setPos(x,y,z)
         scnObj.setNodePath(np)# Rotation should occure ere, TODO but maybe it shouldnt 
 
 
