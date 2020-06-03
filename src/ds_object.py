@@ -4,6 +4,7 @@ from panda3d.core import LMatrix4f
 from panda3d.core import LVecBase3f
 from panda3d.core import LMatrix3f
 from panda3d.core import LQuaternion
+from scipy.spatial.transform import Rotation as R
 class SceneObj:
     def __init__(self,
         pos = [0,0,0],
@@ -11,7 +12,7 @@ class SceneObj:
         a1 = [0,0,0],
         a2 = [0,0,0],
         radius = [0,0,0],
-        quat = [0,0,0,0],
+        quat = [0,0,0,0],#Scalar last format
         mode = 'quat'
     ):
 
@@ -73,10 +74,26 @@ class SceneObj:
             print('Non-existing Node Path to rotate')
 
     def rotQuat(self,quat4):
-        quato = LQuaternion(quat4[3],quat4[0],quat4[1],quat4[2])
-        self.nodePath.setQuat(quat = quato)
+        quato = LQuaternion(r=quat4[3],i=quat4[0],j=quat4[1],k=quat4[2])
+        print('En el file: ',quato)
+        r = R.from_matrix([[self.a0[0],self.a0[1],self.a0[2]],
+                           [self.a1[0],self.a1[1],self.a1[2]],
+                           [self.a2[0],self.a2[1],self.a2[2]]])
+        print('Derivado de a# con scipy: ',r.as_quat())
         self.nodePath.setPos(self.pos[0],self.pos[1],self.pos[2])
+        #self.nodePath.setQuat(self.nodePath,quat = quato)
         #That should be it
+        #Esto es todo lo que necesitas para quaternions
+        a0v = LVecBase3f(self.a0[0],self.a0[1],self.a0[2])
+        a1v = LVecBase3f(self.a1[0],self.a1[1],self.a1[2])
+        a2v = LVecBase3f(self.a2[0],self.a2[1],self.a2[2])
+        mat3 = LMatrix3f(a0v,a1v,a2v)
+        quaton = LQuaternion()
+        quaton.setFromMatrix(mat3)
+        #Me Darias los resultados de "quaton"
+        self.nodePath.setQuat(self.nodePath,quat = quaton)
+        print('Derivado de a# con panda3d : ',quaton)
+        print('Done')
 
 
     def __str__(self):
