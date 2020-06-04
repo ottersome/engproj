@@ -443,7 +443,8 @@ class MyApp(ShowBase):
     def drawOBBox(self,scnObj):
         ls = LineSegs()
         x,y,z = scnObj.pos
-        rx,ry,rz = scnObj.radius
+        #rx,ry,rz = scnObj.radius
+        rx,rz,ry = scnObj.radius
         ls.setThickness(4)
         #ls.setColor(1,0.4,0.0,0.3)
         ls.setColor(rand(),rand(),rand(),0.3)
