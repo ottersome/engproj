@@ -427,7 +427,7 @@ class MyApp(ShowBase):
         ls = LineSegs()
         x,y,z = scnObj.pos
         rx,ry,rz = scnObj.radius
-        ls.setThickness(1)
+        ls.setThickness(4)
         #ls.setColor(1,0.4,0.0,0.3)
         ls.setColor(rand(),rand(),rand(),0.3)
 
