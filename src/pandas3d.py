@@ -41,6 +41,7 @@ sceneDir = join(dirname, '../Dataset/Newest')
 parser = argparse.ArgumentParser(description='Render Results')
 parser.add_argument('-f', metavar='f', type=str, nargs=1,action='store')             
 parser.add_argument('-t', metavar='t', type=str, nargs=1,action='store')
+parser.add_argument('-m', action='store_true')
 
 args = parser.parse_args()
 defrotMode = args.t
@@ -135,8 +136,9 @@ class MyApp(ShowBase):
                     print("\twith a0 : ",' at : {:2.2} {:2.2} {:2.2}'.format(row[4],row[5],row[6]))
                     print("\twith a1 : ",' at : {:2.2} {:2.2} {:2.2}'.format(row[7],row[8],row[9]))
                     #IF YOU WANT TO RENDER MODELS UNCOMMENT BELOW
-                    #modelo.reparentTo(self.render)
-                    #modelo.setPos(row[1],row[2],row[3])
+                    if(args.m):
+                        modelo.reparentTo(self.render)
+                        modelo.setPos(row[1],row[2],row[3])
 
                     #Drawing Label
                     text = TextNode('Nodess')
