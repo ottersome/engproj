@@ -7,7 +7,6 @@ from panda3d.core import LQuaternion
 from scipy.spatial.transform import Rotation as R
 
 
-
 class SceneObj:
     def __init__(self,
         pos = [0,0,0],

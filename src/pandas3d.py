@@ -58,6 +58,7 @@ class MyApp(ShowBase):
         self.scnObjs = []
 
         self.meloader = modelds.MyLoader(self,dirToModels)
+        self.linesegs = []
 
         self.drawAxis()
         self.loadPerSpec("/home/ottersome/Projects/EngProj/Dataset/1LXtFkjw3qLregion2.csv",
@@ -68,6 +69,7 @@ class MyApp(ShowBase):
         #self.drawSpherex(self.points)
         self.drawBoundingBoxes(None)
         #Need a0,a1 for this
+        self.accept('h', self.hideAxis)
         self.drawLineSegments(self.scnObjs)
 
         #Append room name to scene dir
@@ -76,6 +78,8 @@ class MyApp(ShowBase):
         base.camera.setPos(-2,-18,20)
         base.camera.lookAt(-2,-18,0)
         base.oobe()
+
+        self.hidden = True
 
         #plight = PointLight('plight')
         #plight.setColor((0.9, 0.9, 0.9, 1))
@@ -388,6 +392,17 @@ class MyApp(ShowBase):
 
         linegeomn = ls.create(dynamic=False)# Creates a geomnode
         nodePath = self.render.attachNewNode(linegeomn)
+        self.linesegs.append(nodePath)
+
+    def hideAxis(self):
+        if not self.hidden:
+            for axis in self.linesegs:
+                axis.hide()
+        else:
+            for axis in self.linesegs:
+                axis.show()
+        self.hidden = not self.hidden
+
 
 
     def getAngleBtwnVec(self, v0,v1):# Assuming 3D Vectors
