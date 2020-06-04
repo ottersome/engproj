@@ -15,7 +15,7 @@ class MyLoader(Loadies.Loader):
         #self.loadedNodePaths = 40*[None]#This will store our models; This was for when we wanted to load only 40 of em
         self.loadedNodePaths = []#This will store individual instances per scene
         #self.mappings = pd.read_csv(mappingDir, sep='\t')
-        self.nyuNames = [None]*40
+        self.nyuNames = [None]*41
         self.getModelEggNames(modelDir)
         return super().__init__(baseo)
 

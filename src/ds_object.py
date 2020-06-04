@@ -75,24 +75,25 @@ class SceneObj:
 
     def rotQuat(self,quat4):
         quato = LQuaternion(r=quat4[3],i=quat4[0],j=quat4[1],k=quat4[2])
-        print('En el file: ',quato)
-        r = R.from_matrix([[self.a0[0],self.a0[1],self.a0[2]],
-                           [self.a1[0],self.a1[1],self.a1[2]],
-                           [self.a2[0],self.a2[1],self.a2[2]]])
-        print('Derivado de a# con scipy: ',r.as_quat())
-        self.nodePath.setPos(self.pos[0],self.pos[1],self.pos[2])
-        #self.nodePath.setQuat(self.nodePath,quat = quato)
-        #That should be it
-        #Esto es todo lo que necesitas para quaternions
-        a0v = LVecBase3f(self.a0[0],self.a0[1],self.a0[2])
-        a1v = LVecBase3f(self.a1[0],self.a1[1],self.a1[2])
-        a2v = LVecBase3f(self.a2[0],self.a2[1],self.a2[2])
-        mat3 = LMatrix3f(a0v,a1v,a2v)
-        quaton = LQuaternion()
-        quaton.setFromMatrix(mat3)
+        #alden shoulve made the following unnecessary
+        #print('En el file: ',quato)
+        #r = R.from_matrix([[self.a0[0],self.a0[1],self.a0[2]],
+        #                   [self.a1[0],self.a1[1],self.a1[2]],
+        #                   [self.a2[0],self.a2[1],self.a2[2]]])
+        #print('Derivado de a# con scipy: ',r.as_quat())
+        ##self.nodePath.setQuat(self.nodePath,quat = quato)
+        ##That should be it
+        ##Esto es todo lo que necesitas para quaternions
+        #a0v = LVecBase3f(self.a0[0],self.a0[1],self.a0[2])
+        #a1v = LVecBase3f(self.a1[0],self.a1[1],self.a1[2])
+        #a2v = LVecBase3f(self.a2[0],self.a2[1],self.a2[2])
+        #mat3 = LMatrix3f(a0v,a1v,a2v)
+        #quaton = LQuaternion()
+        #quaton.setFromMatrix(mat3)
         #Me Darias los resultados de "quaton"
-        self.nodePath.setQuat(self.nodePath,quat = quaton)
-        print('Derivado de a# con panda3d : ',quaton)
+        self.nodePath.setQuat(self.nodePath,quat = quato)
+        self.nodePath.setPos(self.pos[0],self.pos[1],self.pos[2])
+        #print('Derivado de a# con panda3d : ',quaton)
         print('Done')
 
 

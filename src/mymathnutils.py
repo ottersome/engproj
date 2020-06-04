@@ -1,5 +1,6 @@
 #notgottie = [1,2,22,38,40]
-notgottie = [0,1,2,22,38,40]
+#notgottie = [0,1,2,22,38,40]
+notgottie = [0]
 import numpy as np
 
 def getAngle(v0,v1):

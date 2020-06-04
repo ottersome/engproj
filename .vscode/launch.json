@@ -9,7 +9,11 @@
             "type": "python",
             "request": "launch",
             "program": "src/pandas3d.py",
-            "console": "integratedTerminal"
+            "console": "integratedTerminal",
+            "args" : [
+                "-t","quat","-f","room#373_RealValues.csv"
+
+            ]
         }
     ]
 }

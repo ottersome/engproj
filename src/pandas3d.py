@@ -19,6 +19,7 @@ from os.path import isfile, join, dirname, abspath
 import modelds
 import re
 import mymathnutils
+import argparse
 from ds_object import SceneObj
 
 
@@ -35,9 +36,15 @@ dirToModels = join(dirname, '../Models/Alden/CorrectedModels/')
 defRotMode = 'quat'
 #sceneDir = join(dirname, '../Dataset/Matterport/predictions_may26/room#1_RealValues.csv')
 #sceneDir = join(dirname, '../Dataset/Matterport/3rdFormat/room#47_RealValues.csv')
-sceneDir = join(dirname, '../Dataset/Matterport/3rdFormat/room#760_RealValues.csv')
-if len(sys.argv) >= 2 and sys.argv[1] != None :
-    defRotMode = sys.argv[1] 
+sceneDir = join(dirname, '../Dataset/Newest')
+
+parser = argparse.ArgumentParser(description='Render Results')
+parser.add_argument('-f', metavar='f', type=str, nargs=1,action='store')             
+parser.add_argument('-t', metavar='t', type=str, nargs=1,action='store')
+
+args = parser.parse_args()
+defrotMode = args.t
+sceneDir = join(sceneDir, args.f[0])
 
 class MyApp(ShowBase):
 
@@ -61,6 +68,9 @@ class MyApp(ShowBase):
         self.drawBoundingBoxes(None)
         #Need a0,a1 for this
         self.drawLineSegments(self.scnObjs)
+
+        #Append room name to scene dir
+        
         base.disableMouse()
         base.camera.setPos(-2,-18,20)
         base.camera.lookAt(-2,-18,0)
