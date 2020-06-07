@@ -182,7 +182,7 @@ class MyApp(ShowBase):
         objIndex =0
         for index,row in df.iterrows():
             if int(row[0]) not in mymathnutils.notgottie:
-                point=[40*row[1],40*row[2],10*row[3]]
+                point=[40*row[1],40*row[2],1*row[3]]
 
                 #Quat info 
                 quat = [float(row[7]),float(row[4]),float(row[5]),float(row[6])]
