@@ -55,6 +55,9 @@ class MyApp(ShowBase):
 
         #Replace this bois...
         self.colors = []# Maybe except this
+        for i in range(40):
+            self.colors.append([rand(),rand(),rand(),1])
+
         self.scnObjs = []
 
         self.meloader = modelds.MyLoader(self,dirToModels)
@@ -73,7 +76,6 @@ class MyApp(ShowBase):
         self.drawLineSegments(self.scnObjs)
 
         #Append room name to scene dir
-        
         base.disableMouse()
         base.camera.setPos(-2,-18,20)
         base.camera.lookAt(-2,-18,0)
@@ -81,16 +83,6 @@ class MyApp(ShowBase):
 
         self.hidden = True
 
-        #plight = PointLight('plight')
-        #plight.setColor((0.9, 0.9, 0.9, 1))
-        #plnp = render.attachNewNode(plight)
-        #plnp.setPos(0, 0, 1)
-        #render.setLight(plnp)
-        #  ambientLight = AmbientLight("Ambient Light")
-        #  ambientLight.setColor(Vec4(0.1,0.1,0.1,1))
-        #  self.ambientLightNP = self.render.attachNewNode(ambientLight)
-        #  self.render.setLight(self.ambientLightNP)
-        #self.taskMgr.add(self.spinCameraTask,"SpinCameraTask")
 
     def testAxis(self, path):
         # Get files from give directory
@@ -126,7 +118,6 @@ class MyApp(ShowBase):
 
         models = self.meloader.loadedNodePaths
         print("Resulting Models : ",models)
-
         #TODO we have to handle multiple instance of the same
         #type of object
         df = pd.read_csv(sceneDir)
@@ -136,9 +127,6 @@ class MyApp(ShowBase):
                 modelo = models[objIndex]
                 if modelo != None:
                     #Actually Attach to scene to render
-                    print("Rendering : ",modelo, ' at : {:2.2} {:2.2} {:2.2}'.format(row[1],row[2],row[3]))
-                    print("\twith a0 : ",' at : {:2.2} {:2.2} {:2.2}'.format(row[4],row[5],row[6]))
-                    print("\twith a1 : ",' at : {:2.2} {:2.2} {:2.2}'.format(row[7],row[8],row[9]))
                     #IF YOU WANT TO RENDER MODELS UNCOMMENT BELOW
                     if(args.m):
                         modelo.reparentTo(self.render)
@@ -146,12 +134,11 @@ class MyApp(ShowBase):
 
                     #Drawing Label
                     text = TextNode('Nodess')
-                    text.setText('Lbl: {:}'.format(modelo))
                     textNodePath = self.render.attachNewNode(text)
                     textNodePath.setPos(row[1],row[2],row[3])
                     textNodePath.setColor(0.7,0.1,0.1,1)
                     textNodePath.setScale(0.2,0.2,0.2)
-                objIndex += 1
+            objIndex += 1
 
         #Lets try loading 
     def drawBoundingBoxes(self,row):
@@ -159,8 +146,12 @@ class MyApp(ShowBase):
         self.getPointsNQuat()
 
         #for point in self.points:
+        counter = 0
         for scnobj in self.scnObjs:
             self.drawOBBox(scnobj)
+            if counter == 15:
+                break
+            counter +=1 
 
         return 0
 
@@ -191,17 +182,22 @@ class MyApp(ShowBase):
         objIndex =0
         for index,row in df.iterrows():
             if int(row[0]) not in mymathnutils.notgottie:
-                point=[row[1],row[2],row[3]]
+                point=[40*row[1],40*row[2],10*row[3]]
 
                 #Quat info 
-                quat = [float(row[4]),float(row[5]),float(row[6]),float(row[7])]
+                quat = [float(row[7]),float(row[4]),float(row[5]),float(row[6])]
 
                 #A thingers
-                a0n = [row[8],row[9],row[10]]
-                a1n = [row[11],row[12],row[13]]
+                #a0n = [row[8],row[9],row[10]]
+                #a1n = [row[11],row[12],row[13]]
+                a0n = [1,0,0]
+                a1n = [0,1,0]
+
+                print('For {:} A0 : {:}'.format(row[0],a0n))
+                print('For {:} A1 : {:}'.format(row[0],a1n))
 
                 #Radii
-                radii=[row[14],row[15],row[16]]
+                radii=[row[8],row[9],row[10]]
 
                 #  print('Sorting axis...')
                 # Sort Axes:
@@ -248,77 +244,12 @@ class MyApp(ShowBase):
                     a0 = a0n,
                     a1 = a1n,
                     a2 = a2n,
+                    catid = int(row[0]),
                     radius=radii))#I know radii is not the correct term, its a recycled name
-
 
                 #print("Ford index : %d Coords : (%.3f,%.3f,%.3f)"%
                 #    (row['objectIndex'],row['px'],row['py'],row['pz']))
 
-
-    def getPoints(self):
-        df = pd.read_csv(sceneDir)
-        objIndex =0
-        for index,row in df.iterrows():
-            if int(row[0]) not in mymathnutils.notgottie:
-                #print('This is it : ',int(row[0]))
-                point=[row[1],row[2],row[3]]
-                a0=[row[4],row[5],row[6]]
-                a1=[row[7],row[8],row[9]]
-                
-                a0n=a0/np.linalg.norm(a0)
-                a1n=a1/np.linalg.norm(a1)
-                a1n = np.cross(a0n,a1n)
-                a1n = np.cross(a1n,a0n)
-                a1n =  (a1n/np.linalg.norm(a1n))
-                a2n = np.cross(a0n,a1n)
-
-                #Radii
-                radii=[row[10],row[11],row[12]]
-
-                #print('Sorting axis...')
-                # Sort Axes:
-                if(radii[1] > radii[0]):
-                    swap_axis = a0n
-                    swap_radii = radii[0]
-
-                    a0n = a1n
-                    radii[0] = radii[1]
-
-                    a1n = swap_axis
-                    radii[1] = swap_radii
-
-                if(radii[2] > radii[0]):
-                    swap_axis = a0n
-                    swap_radii = radii[0]
-
-                    a0n = a2n
-                    radii[0] = radii[2]
-
-                    a2n = swap_axis
-                    radii[2] = swap_radii
-
-                if(radii[2] > radii[1]):
-                    swap_axis = a1n
-                    swap_radii = radii[1]
-
-                    a1n = a2n
-                    radii[1] = radii[2]
-
-                    a2n = swap_axis
-                    radii[2] = swap_radii
-
-                # No Idea why thi is idone
-                a2n = np.cross(a0n,a1n)
-                a2n = (a2n/np.linalg.norm(a2n))
-
-                #Now appedn it into the scenObjs array 
-                self.scnObjs.append(SceneObj(pos = point,
-                    a0=a0n,a1=a1n,a2=a2n,
-                    radius=radii))#I know radii is not the correct term, its a recycled name
-
-
-                #print("Ford index : %d Coords : (%.3f,%.3f,%.3f)"%
-                #    (row['objectIndex'],row['px'],row['py'],row['pz']))
 
 
     def spinCameraTask(self, task):
@@ -327,6 +258,101 @@ class MyApp(ShowBase):
         self.camera.setPos(20*sin(angleRadians),-20*cos(angleRadians),10)
         self.camera.setHpr(angleDegrees,0,0)
         return Task.cont
+
+    def drawRectangle(self, sqr,clr):
+        #Square will be a list of 4 elemets. Each element being a 3 element vector
+        #Square will be a list of 4 elemets. RGBA. This single 4-element value will be
+            #applied to every vertex
+        vdata = GeomVertexData('',GeomVertexFormat.getV3n3c4(),Geom.UHStatic)
+        vertex = GeomVertexWriter(vdata,'vertex')
+        color = GeomVertexWriter(vdata,'color')
+        normal = GeomVertexWriter(vdata,'normal')
+
+        for i in range(4):
+            vertex.addData3f(sqr[i][0],sqr[i][1],sqr[i][2])
+        for i in range(4):
+            color.addData4f(clr[0],clr[1],clr[2],clr[3])
+
+        prim = GeomTristrips(Geom.UHStatic)
+        for i in range(4):
+            prim.addVertex(i)
+        prim.close_primitive()
+
+        geom = Geom(vdata)
+        geom.addPrimitive(prim)
+
+        name = 'square'+str(int(rand()))
+        node = GeomNode('planeNode')
+        node.addGeom(geom)
+
+        nodePath = self.render.attachNewNode(node)
+        return nodePath
+
+    def drawBox(self, scnobj):
+        #6 Of these
+        rx,ry,rz = scnobj.radius
+        clr = self.colors[scnobj.catid]
+        r1 = self.drawRectangle(
+            [[rx,ry,rz],
+            [-rx,ry,rz],
+            [rx,-ry,rz],
+            [-rx,-ry,rz]],
+            clr
+            )
+        r1.set_two_sided(True)
+        r2 = self.drawRectangle(
+            [[rx,ry,-rz],
+            [-rx,ry,-rz],
+            [rx,-ry,-rz],
+            [-rx,-ry,-rz]],
+            clr
+            )
+        r2.set_two_sided(True)
+        r3 = self.drawRectangle(
+            [[rx,ry,-rz],
+            [rx,ry,rz],
+            [rx,-ry,-rz],
+            [rx,-ry,rz]],
+            clr
+            )
+        r3.set_two_sided(True)
+        r4 = self.drawRectangle(
+            [[-rx,ry,-rz],
+            [-rx,ry,rz],
+            [-rx,-ry,-rz],
+            [-rx,-ry,rz]],
+            clr
+            )
+        r4.set_two_sided(True)
+        r5 = self.drawRectangle(
+            [[rx,ry,-rz],
+            [rx,ry,rz],
+            [-rx,ry,-rz],
+            [-rx,ry,rz]],
+            clr
+            )
+        r5.set_two_sided(True)
+        r6 = self.drawRectangle(
+            [[rx,-ry,-rz],
+            [rx,-ry,rz],
+            [-rx,-ry,-rz],
+            [-rx,-ry,rz]],
+            clr
+            )
+        r6.set_two_sided(True)
+        popNP = NodePath('Nodepath')
+        #self.render.attachNewNode(popNP)
+        r1.reparentTo(popNP)
+        r2.reparentTo(popNP)
+        r3.reparentTo(popNP)
+        r4.reparentTo(popNP)
+        r5.reparentTo(popNP)
+        r6.reparentTo(popNP)
+        popNP.setTransparency(TransparencyAttrib.MAlpha)
+        popNP.setAlphaScale(0.5)
+        popNP.reparentTo(self.render)
+        return popNP
+
 
     def drawPlane(self):
         vdata = GeomVertexData('',GeomVertexFormat.getV3n3c4(),Geom.UHStatic)
@@ -403,8 +429,6 @@ class MyApp(ShowBase):
                 axis.show()
         self.hidden = not self.hidden
 
-
-
     def getAngleBtwnVec(self, v0,v1):# Assuming 3D Vectors
         v0 = np.unit_vector(v0)
         v1 = np.unit_vector(v1)
@@ -414,31 +438,6 @@ class MyApp(ShowBase):
     def unit_vector(self,vector):
         return vector / np.linalg.norm(vector)
         
-    def drawBBox(self,scnObj):
-        ls = LineSegs()
-        x,y,z = scnObj.pos
-        rx,ry,rz = scnObj.radius
-        ls.setThickness(5)
-        ls.setColor(1,0.4,0.0,0.3)
-
-        ls.moveTo(x,y,z)
-        ls.drawTo(x+rx,y+ry,z+rz)
-        ls.drawTo(x+rx,y-ry,z+rz)
-        ls.drawTo(x-rx,y-ry,z+rz)
-        ls.drawTo(x-rx,y+ry,z+rz)
-        ls.drawTo(x+rx,y+ry,z+rz)
- 
-        ls.moveTo(x,y,z)
-        ls.drawTo(x+rx,y+ry,z-rz)
-        ls.drawTo(x+rx,y-ry,z-rz)
-        ls.drawTo(x-rx,y-ry,z-rz)
-        ls.drawTo(x-rx,y+ry,z-rz)
-        ls.drawTo(x+rx,y+ry,z-rz)
-
-        linegeomn = ls.create(dynamic=False)
-        np  = self.render.attachNewNode(linegeomn)
-        scnObj.setNodePath(np)# Rotation should occure ere, TODO but maybe it shouldnt 
-
 
     def drawOBBox(self,scnObj):
         ls = LineSegs()
@@ -446,7 +445,13 @@ class MyApp(ShowBase):
         rx,ry,rz = scnObj.radius
         ls.setThickness(4)
         #ls.setColor(1,0.4,0.0,0.3)
-        ls.setColor(rand(),rand(),rand(),0.3)
+        rc,gc,bc = [rand(),rand(),rand()]
+        #ls.setColor(rc+0.1,gc+0.1,bc+0.1,0.3)
+        nps = self.drawBox(scnObj)
+        nps.setQuat(scnObj.quat)
+        nps.setPos(x,y,z)
+
+        ls.setColor(0,0,0,0.3)
 
         ls.moveTo(0,0,0)
         ls.drawTo(rx,ry,rz)
@@ -481,8 +486,94 @@ class MyApp(ShowBase):
         #np.setPos(x,y,z)
         scnObj.setNodePath(np)# Rotation should occure ere, TODO but maybe it shouldnt 
 
+#Trash
+    def drawBBox(self,scnObj):
+        ls = LineSegs()
+        x,y,z = scnObj.pos
+        rx,rz,ry = scnObj.radius
+        ls.setThickness(5)
+        ls.setColor(1,0.4,0.0,0.3)
 
-        
+        ls.moveTo(x,y,z)
+        ls.drawTo(x+rx,y+ry,z+rz)
+        ls.drawTo(x+rx,y-ry,z+rz)
+        ls.drawTo(x-rx,y-ry,z+rz)
+        ls.drawTo(x-rx,y+ry,z+rz)
+        ls.drawTo(x+rx,y+ry,z+rz)
+ 
+        ls.moveTo(x,y,z)
+        ls.drawTo(x+rx,y+ry,z-rz)
+        ls.drawTo(x+rx,y-ry,z-rz)
+        ls.drawTo(x-rx,y-ry,z-rz)
+        ls.drawTo(x-rx,y+ry,z-rz)
+        ls.drawTo(x+rx,y+ry,z-rz)
+
+        linegeomn = ls.create(dynamic=False)
+        np  = self.render.attachNewNode(linegeomn)
+        scnObj.setNodePath(np)# Rotation should occure ere, TODO but maybe it shouldnt 
+
+
+    def getPoints(self):
+        df = pd.read_csv(sceneDir)
+        objIndex =0
+        for index,row in df.iterrows():
+            if int(row[0]) not in mymathnutils.notgottie:
+                #print('This is it : ',int(row[0]))
+                point=[row[1],row[2],row[3]]
+                a0=[row[4],row[5],row[6]]
+                a1=[row[7],row[8],row[9]]
+                
+                a0n=a0/np.linalg.norm(a0)
+                a1n=a1/np.linalg.norm(a1)
+                a1n = np.cross(a0n,a1n)
+                a1n = np.cross(a1n,a0n)
+                a1n =  (a1n/np.linalg.norm(a1n))
+                a2n = np.cross(a0n,a1n)
+
+                #Radii
+                radii=[row[10],row[11],row[12]]
+
+                #print('Sorting axis...')
+                # Sort Axes:
+                if(radii[1] > radii[0]):
+                    swap_axis = a0n
+                    swap_radii = radii[0]
+
+                    a0n = a1n
+                    radii[0] = radii[1]
+
+                    a1n = swap_axis
+                    radii[1] = swap_radii
+
+                if(radii[2] > radii[0]):
+                    swap_axis = a0n
+                    swap_radii = radii[0]
+
+                    a0n = a2n
+                    radii[0] = radii[2]
+
+                    a2n = swap_axis
+                    radii[2] = swap_radii
+
+                if(radii[2] > radii[1]):
+                    swap_axis = a1n
+                    swap_radii = radii[1]
+
+                    a1n = a2n
+                    radii[1] = radii[2]
+
+                    a2n = swap_axis
+                    radii[2] = swap_radii
+
+                # No Idea why thi is idone
+                a2n = np.cross(a0n,a1n)
+                a2n = (a2n/np.linalg.norm(a2n))
+
+                #Now appedn it into the scenObjs array 
+                self.scnObjs.append(SceneObj(pos = point,
+                    a0=a0n,a1=a1n,a2=a2n,
+                    radius=radii))#I know radii is not the correct term, its a recycled name
+
 
 app = MyApp()
 app.run()
