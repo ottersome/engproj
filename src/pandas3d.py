@@ -27,6 +27,8 @@ loadPrcFileData("", "load-file-type p3assimp")
 dirname = dirname(__file__)
 dirToMappings = join(dirname, '../Dataset/Matterport/category_mapping.tsv')
 dirToModels = join(dirname, '../Models/Alden/CorrectedModels/')
+dirToColorMap =join(dirname, '../Dataset/colorMapping.csv')
+ 
 #  sceneDir = join(dirname, '../Dataset/Matterport/Alden/room#0_RealValues.csv')
 #sceneDir = join(dirname, '../Dataset/Matterport/Alden/room#1200_RealValues.csvI')
 #New format
@@ -41,6 +43,7 @@ sceneDir = join(dirname, '../Dataset/Newest')
 parser = argparse.ArgumentParser(description='Render Results')
 parser.add_argument('-f', metavar='f', type=str, nargs=1,action='store')             
 parser.add_argument('-t', metavar='t', type=str, nargs=1,action='store')
+parser.add_argument('-s', metavar='s', type=str, nargs=1,action='store')
 parser.add_argument('-m', action='store_true')
 
 args = parser.parse_args()
@@ -54,9 +57,9 @@ class MyApp(ShowBase):
         self.amntObjs = 0
 
         #Replace this bois...
-        self.colors = []# Maybe except this
-        for i in range(40):
-            self.colors.append([rand(),rand(),rand(),1])
+        #Get colors
+        df = pd.read_csv(dirToColorMap)
+        self.colors = df.value.tolist()
 
         self.scnObjs = []
 
@@ -182,7 +185,10 @@ class MyApp(ShowBase):
         objIndex =0
         for index,row in df.iterrows():
             if int(row[0]) not in mymathnutils.notgottie:
-                point=[40*row[1],40*row[2],1*row[3]]
+                if(args.s):
+                    point=[40*row[1],40*row[2],1*row[3]]
+                else:
+                    point=[row[1],row[2],row[3]]
 
                 #Quat info 
                 quat = [float(row[7]),float(row[4]),float(row[5]),float(row[6])]
