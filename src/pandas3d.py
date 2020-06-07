@@ -43,8 +43,8 @@ sceneDir = join(dirname, '../Dataset/Newest')
 parser = argparse.ArgumentParser(description='Render Results')
 parser.add_argument('-f', metavar='f', type=str, nargs=1,action='store')             
 parser.add_argument('-t', metavar='t', type=str, nargs=1,action='store')
-parser.add_argument('-s', metavar='s', type=str, nargs=1,action='store')
 parser.add_argument('-m', action='store_true')
+parser.add_argument('-s', action='store_true')
 
 args = parser.parse_args()
 defrotMode = args.t
@@ -59,7 +59,7 @@ class MyApp(ShowBase):
         #Replace this bois...
         #Get colors
         df = pd.read_csv(dirToColorMap)
-        self.colors = df.value.tolist()
+        self.colors = df.values.tolist()
 
         self.scnObjs = []
 
